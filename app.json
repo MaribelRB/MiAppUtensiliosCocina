@@ -16,7 +16,8 @@
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.maribel11.MiAppUtensiliosCocina"
     },
     "web": {
       "bundler": "metro",
@@ -37,6 +38,15 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "permissions": [
+      "MEDIA_LIBRARY"
+    ],
+    "extra": {
+      "router": {},
+      "eas": {
+        "projectId": "ef6da432-9fc3-4540-8fbe-59edd8eceeca"
+      }
     }
   }
 }
