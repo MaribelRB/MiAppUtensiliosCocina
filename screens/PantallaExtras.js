@@ -1,8 +1,8 @@
 // screens/PantallaInicio.js
-import React, { useState, useEffect } from "react";
-import { StyleSheet, Text, View, TextInput, Image, TouchableOpacity, Modal, Pressable, SectionList, ActivityIndicator } from "react-native";
-import { useNavigation, DrawerActions } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import { ActivityIndicator, Image, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 const curiosidadesData = [
   {

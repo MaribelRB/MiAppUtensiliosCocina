@@ -1,10 +1,15 @@
-import React, { useState, useEffect } from "react";
-import {
-  StyleSheet, Text, View, Image, Switch,
-  TouchableOpacity, ActivityIndicator, FlatList
-} from "react-native";
-import { useNavigation, DrawerActions } from "@react-navigation/native";
 import { Ionicons } from "@expo/vector-icons";
+import { DrawerActions, useNavigation } from "@react-navigation/native";
+import React, { useEffect, useState } from "react";
+import {
+  ActivityIndicator, FlatList,
+  Image,
+  StyleSheet,
+  Switch,
+  Text,
+  TouchableOpacity,
+  View
+} from "react-native";
 
 const utensiliosIniciales = [
   { id: '1', nombre: 'Cuchillo de chef', favorito: true },

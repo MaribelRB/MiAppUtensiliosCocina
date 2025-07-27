@@ -1,86 +1,63 @@
-// screens/PantallaInicio.js
-import { Ionicons } from "@expo/vector-icons";
-import { DrawerActions, useNavigation } from "@react-navigation/native";
+import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
-import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import { auth } from "../config/firebase";
 
-export default function PantallaInicio() {
-  const navigation = useNavigation();
-  const [nombre, setNombre] = useState("");
-  const [modalVisible, setModalVisible] = useState(false);
-  const cerrarModal = () => {
-    setModalVisible(false);
-    setNombre("");
+export default function PantallaRegistro({ navigation }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  const handleRegistro = async () => {
+    try {
+      console.log("Intentando registrar usuario:", email);
+      //Alert.alert("Intentando registrar usuario:", email);
+      if (email==='' || password==='') {
+        Alert.alert("Error", "Por favor, completa todos los campos.");
+        return;
+      }
+      await createUserWithEmailAndPassword(auth, email, password);
+      Alert.alert("Registro exitoso", "¡Usuario creado!");
+      login();
+    } catch (error) {
+      Alert.alert("Error", error.message);
+    }
   };
-  
- 
+
   return (
+    
     <ScrollView contentContainerStyle={styles.containerpadre}>
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-      >
-        <Ionicons name="menu" size={32} color="#C8102E" />
-      </TouchableOpacity>
-      
-      
-      <Text style={styles.title}>MasterEnCocina</Text>
-      <View style={styles.row}>
-        <View style={styles.imageContainer}>
-            <Image
-              source={require('../assets/images/cocina.jpg')}
-              style={styles.imagecabecera}
-            />
-          </View>
-          <View style={styles.textContainer}>
-            <Text style={styles.text}>El mundo de la cocina desde las herramientas.</Text>
-          </View>
-      </View>
-
-      <Text style={styles.description}>
-        Aquí podrás encontrar información de los utensilios más utilizados dentro de las cocinas profesionales, podrás encontrar información sobre las categorías de estos mismos, así como los detalles y curiosidades de ellos.
-      </Text>
-      <View style={styles.modal}>
-       <View style={styles.textcontmodal}>
-         <Text style={styles.inputLabel}>Agrega un cometario de la app. ¡Sería de mucha ayuda!</Text>
-       </View>
-       <View style={styles.contmodalinput}>
-            <TextInput
-              style={styles.input}
-              placeholder="Escribe aquí..."
-              value={nombre}
-              onChangeText={setNombre}
-            />
-        </View>
-      </View>
-      <TouchableOpacity style={styles.botonModal} onPress={() => setModalVisible(true)}>
-         <Text style={styles.botonTexto}>Enviar</Text>
-      </TouchableOpacity>
-
-      <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={cerrarModal}
-        >
-          <View style={styles.centeredView}>
-            <View style={styles.modalView}>
-              <Text style={styles.modalText}>¡Gracias por tu comentario!</Text>
-              <Pressable style={styles.buttonClose} onPress={cerrarModal}>
-                <Text style={styles.textStyle}>Cerrar</Text>
-              </Pressable>
+          <View style={styles.container}>
+                
+            <Text style={styles.title}>MasterEnCocina</Text>
+            <View style={styles.row}>
+              <View style={styles.imageContainer}>
+                  <Image
+                    source={require('../assets/images/cocina.jpg')}
+                    style={styles.imagecabecera}
+                  />
+              </View>
+            </View>
+            <View>
+              <Text style={styles.text}>Ingresa un correo y contraseña válida.</Text>
+            </View>
+            <View>
+              <TextInput style={styles.input} placeholder="Correo" value={email} onChangeText={setEmail} autoCapitalize="none" />
+              <TextInput style={styles.input} placeholder="Contraseña" value={password} onChangeText={setPassword} secureTextEntry />
+            </View>
+                  
+            
+              
+            <TouchableOpacity style={styles.botonModal} onPress={handleRegistro}>
+                <Text style={styles.botonTexto}>Registrarme</Text>
+            </TouchableOpacity>
+            <View style={{ height: 180 }} />
+            <View style={styles.footer}>
+              <Text style={styles.footerLeft}>Maribel Romero Bautista</Text>
+              <Text style={styles.footerRight}>Aplicaciones Móviles</Text>
             </View>
           </View>
-        </Modal>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerLeft}>Maribel Romero Bautista</Text>
-        <Text style={styles.footerRight}>Aplicaciones Móviles</Text>
-      </View>
-    </View>
-    </ScrollView>
+        </ScrollView>
   );
 }
 
@@ -115,11 +92,11 @@ const styles = StyleSheet.create({
   },
   imageContainer: {
     marginTop:40,
-    width: 111,
-    height: 74,
+    width: '100%',
+    height: 100,
     borderTopLeftRadius: 160,
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0,
+    borderTopRightRadius: 160,
+    borderBottomRightRadius: 160,
     borderBottomLeftRadius: 160,
     overflow: "hidden", 
   },
@@ -143,10 +120,14 @@ const styles = StyleSheet.create({
   marginTop:15,
   },
   input:{
-    width:"100%",
-    height:"100%",
-    textAlign: "center",
-    borderColor: "blue",
+    marginTop: 15,
+    paddingLeft: 10,
+    width: "100%",
+    height: 40,
+    textAlign: "left",
+    borderWidth: 1,            
+    borderColor: "#b0b0b0",
+    borderRadius: 8, 
     backgroundColor: "#ffffff"
   },
 
@@ -169,8 +150,8 @@ const styles = StyleSheet.create({
     alignItems:'center',
   },
   imagecabecera:{
-    width: 111,
-    height: 74,
+    width: '100%',
+    height: 100,
     resizeMode: "cover",
   },
   description: {
