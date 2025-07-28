@@ -33,7 +33,7 @@ function DrawerMenu() {
             onPress={logout}
             icon={({ color, size }) => (
               <Image
-                source={require("../assets/images/curiosidades.png")}
+                source={require("../assets/images/cerrarsesion.png")}
                 style={{ width: size, height: size, tintColor: color }}
               />
             )}
