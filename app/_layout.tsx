@@ -9,6 +9,7 @@ import PantallaInicio from "../screens/PantallaInicio";
 import PantallaLista from "../screens/PantallaLista";
 import PantallaLogin from "../screens/PantallaLogin";
 import PantallaNuevoUs from "../screens/PantallaNuevoUs";
+import BuscadorRecetas from "../screens/BuscadorRecetas";
 
 const Drawer = createDrawerNavigator();
 const Stack = createStackNavigator();

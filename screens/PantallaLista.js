@@ -1,6 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
+import BatteryStatus from "../components/BatteryStatus";
 import {
   ActivityIndicator, FlatList,
   Image,
@@ -64,6 +65,7 @@ export default function PantallaInicio() {
       >
         <Ionicons name="menu" size={32} color="#C8102E" />
       </TouchableOpacity>
+      <BatteryStatus />
 
       <Text style={styles.title}>Utensilios</Text>
 

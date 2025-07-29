@@ -8,32 +8,26 @@ export default function BatteryStatus() {
   const [isCharging, setIsCharging] = useState(false);
 
   useEffect(() => {
-    const fetchBatteryInfo = async () => {
+  const fetchBatteryInfo = async () => {
+    try {
       const level = await Battery.getBatteryLevelAsync();
-      const charging = await Battery.isChargingAsync();
+      const batteryState = await Battery.getBatteryStateAsync();
+      const charging = batteryState === Battery.BatteryState.CHARGING || batteryState === Battery.BatteryState.FULL;
+
       setBatteryLevel(Math.round(level * 100));
       setIsCharging(charging);
-    };
+    } catch (error) {
+      console.error("Error obteniendo info de batería:", error);
+    }
+  };
 
-    fetchBatteryInfo();
+  // Llamada inicial
+  fetchBatteryInfo();
 
-    const levelSubscription = Battery.addBatteryLevelListener(({ batteryLevel }) => {
-      setBatteryLevel(Math.round(batteryLevel * 100));
-    });
+  // ⏱ Intervalo cada segundo
+  const intervalId = setInterval(fetchBatteryInfo, 1000);
 
-    const chargingSubscription = Battery.addBatteryStateListener(({ batteryState }) => {
-      // batteryState es un número, comparamos con constantes
-      setIsCharging(
-        batteryState === Battery.BatteryState.CHARGING ||
-        batteryState === Battery.BatteryState.FULL
-      );
-    });
-
-    return () => {
-      levelSubscription.remove();
-      chargingSubscription.remove();
-    };
-  }, []);
+}, []);
 
   const batteryColor = batteryLevel > 50 ? "#4CAF50" : "#C8102E"; // verde o rojo
 

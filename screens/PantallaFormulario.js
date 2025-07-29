@@ -5,15 +5,19 @@ import * as MediaLibrary from 'expo-media-library';
 import React, { useEffect, useRef, useState } from "react";
 import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { captureRef } from 'react-native-view-shot';
+import { Video, Audio } from 'expo-av';
+import BatteryStatus from "../components/BatteryStatus";
+
+
 
 export default function PantallaInicio() {
   const recetaRef = useRef(null);
-
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const [recetaDelDia, setRecetaDelDia] = useState(null);
+  const [sound, setSound] = useState(null);
 
-  const recetasPorDia = [
+ const recetasPorDia = [
   {
     dia: "Domingo",
     titulo: "Chilaquiles Verdes",
@@ -33,6 +37,8 @@ export default function PantallaInicio() {
       "Puedes decorar con aguacate al gusto."
     ],
     imagen: require("../assets/images/chilaquiles.jpg"),
+    audio: require("../assets/multimedia/chilaquiles_audio.mp3"),
+    video: require("../assets/multimedia/chilaquiles_video.mp4"),
   },
   {
     dia: "Lunes",
@@ -52,6 +58,8 @@ export default function PantallaInicio() {
       "Añade pollo si deseas una versión más completa."
     ],
     imagen: require("../assets/images/ensalada_cesar.jpg"),
+    audio: require("../assets/multimedia/ensalada_cesar_audio.mp3"),
+    video: require("../assets/multimedia/ensalada_cesar_video.mp4"),
   },
   {
     dia: "Martes",
@@ -72,6 +80,8 @@ export default function PantallaInicio() {
       "Exprime un poco de limón al gusto."
     ],
     imagen: require("../assets/images/tacos_carnitas.jpg"),
+    audio: require("../assets/multimedia/carnitas_audio.mp3"),
+    video: require("../assets/multimedia/carnitas_video.mp4"),
   },
   {
     dia: "Miércoles",
@@ -93,6 +103,8 @@ export default function PantallaInicio() {
       "Añade sal y especias al gusto."
     ],
     imagen: require("../assets/images/sopa_lentejas.jpg"),
+    audio: require("../assets/multimedia/sopa_lentejas_audio.mp3"),
+    video: require("../assets/multimedia/sopa_lentejas_video.mp4"),
   },
   {
     dia: "Jueves",
@@ -113,6 +125,8 @@ export default function PantallaInicio() {
       "Sirve con arroz blanco."
     ],
     imagen: require("../assets/images/pollo_curry.jpg"),
+    audio: require("../assets/multimedia/pollo_curry_audio.mp3"),
+    video: require("../assets/multimedia/pollo_curry_video.mp4"),
   },
   {
     dia: "Viernes",
@@ -133,6 +147,8 @@ export default function PantallaInicio() {
       "Rocía con aceite de oliva antes de servir."
     ],
     imagen: require("../assets/images/pizza_margarita.jpg"),
+    audio: require("../assets/multimedia/pizza_margarita_audio.mp3"),
+    video: require("../assets/multimedia/pizza_margarita_video.mp4"),
   },
   {
     dia: "Sábado",
@@ -154,35 +170,48 @@ export default function PantallaInicio() {
       "Agrega salsas al gusto."
     ],
     imagen: require("../assets/images/hamburguesa_casera.jpg"),
+    audio: require("../assets/multimedia/hamburguesa_audio.mp3"),
+    video: require("../assets/multimedia/hamburguesa_video.mp4"),
   },
 ];
 
+useEffect(() => {
+  Audio.setAudioModeAsync({
+    playsInSilentModeIOS: true,
+    allowsRecordingIOS: false,
+    staysActiveInBackground: false,
+    shouldDuckAndroid: true,
+    playThroughEarpieceAndroid: false,
+  });
+}, []);
+
+
 
   const obtenerReceta = () => {
-    const diaActual = new Date().getDay(); // 0 (domingo) - 6 (sábado)
+    const diaActual = new Date().getDay();
     return recetasPorDia[diaActual];
   };
 
   const Descargar = async () => {
-  try {
-    const { status } = await MediaLibrary.requestPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permiso denegado', 'Se necesita permiso para guardar en la galería');
-      return;
+    try {
+      const { status } = await MediaLibrary.requestPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso denegado', 'Se necesita permiso para guardar en la galería');
+        return;
+      }
+
+      const uri = await captureRef(recetaRef, {
+        format: 'png',
+        quality: 0.8,
+      });
+
+      await MediaLibrary.saveToLibraryAsync(uri);
+      Alert.alert('Éxito', 'La receta fue guardada en tu galería');
+    } catch (error) {
+      console.error(error);
+      Alert.alert('Error', 'No se pudo guardar la receta');
     }
-
-    const uri = await captureRef(recetaRef, {
-      format: 'png',
-      quality: 0.8,
-    });
-
-    await MediaLibrary.saveToLibraryAsync(uri);
-    Alert.alert('Éxito', 'La receta fue guardada en tu galería');
-  } catch (error) {
-    console.error(error);
-    Alert.alert('Error', 'No se pudo guardar la receta');
-  }
-};
+  };
 
   const RecargarReceta = () => {
     setLoading(true);
@@ -192,6 +221,31 @@ export default function PantallaInicio() {
     }, 2000);
   };
 
+ const reproducirAudio = async () => {
+    try {
+      if (!sound && recetaDelDia?.audio) {
+        const { sound: newSound } = await Audio.Sound.createAsync(recetaDelDia.audio);
+        setSound(newSound);
+        await newSound.playAsync();
+      } else if (sound) {
+        const status = await sound.getStatusAsync();
+        if (status.isPlaying) {
+          await sound.pauseAsync();
+        } else {
+          await sound.playAsync();
+        }
+      }
+    } catch (error) {
+      console.error("Error con el audio:", error);
+    }
+  };
+
+  const detenerAudio = async () => {
+    if (sound) {
+      await sound.stopAsync();
+    }
+  };
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setRecetaDelDia(obtenerReceta());
@@ -199,6 +253,14 @@ export default function PantallaInicio() {
     }, 2000);
     return () => clearTimeout(timer);
   }, []);
+
+  useEffect(() => {
+    return sound
+      ? () => {
+          sound.unloadAsync();
+        }
+      : undefined;
+  }, [sound]);
 
   if (loading || !recetaDelDia) {
     return (
@@ -210,59 +272,83 @@ export default function PantallaInicio() {
   }
 
   return (
-  <ScrollView contentContainerStyle={styles.containerpadre}>
-    <View ref={recetaRef} collapsable={false}>
-    <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.menuButton}
-        onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
-      >
-        <Ionicons name="menu" size={32} color="#C8102E" />
-      </TouchableOpacity>
-    
-      <Text style={styles.title}>Receta del día: {recetaDelDia.titulo}</Text>
+    <ScrollView contentContainerStyle={styles.containerpadre}>
+      <View ref={recetaRef} collapsable={false}>
+        <View style={styles.container}>
+          <TouchableOpacity
+            style={styles.menuButton}
+            onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
+          >
+            <Ionicons name="menu" size={32} color="#C8102E" />
+          </TouchableOpacity>
+          <BatteryStatus />
 
-      <View style={styles.row}>
-        <View style={styles.imageContainer}>
-          <Image
-            source={recetaDelDia.imagen || require('../assets/images/cocina.jpg')}
-            style={styles.imagecabecera}
-          />
+          <Text style={styles.title}>Receta del día: {recetaDelDia.titulo}</Text>
+
+          <View style={styles.row}>
+            <View style={styles.imageContainer}>
+              <Image
+                source={recetaDelDia.imagen || require('../assets/images/cocina.jpg')}
+                style={styles.imagecabecera}
+              />
+            </View>
+            <View style={styles.textContainer}>
+              <Text style={styles.text}>{recetaDelDia.dia}</Text>
+            </View>
+          </View>
+
+          <Text style={styles.description}>{recetaDelDia.descripcion}</Text>
+
+          <Text style={styles.subtitle}>Ingredientes:</Text>
+          {recetaDelDia.ingredientes?.map((ingrediente, index) => (
+            <Text key={index} style={styles.listItem}>• {ingrediente}</Text>
+          ))}
+
+          <Text style={styles.subtitle}>Preparación:</Text>
+          {recetaDelDia.preparacion?.map((paso, index) => (
+            <Text key={index} style={styles.listItem}>{index + 1}. {paso}</Text>
+          ))}
+
+          {recetaDelDia.video && (
+            <View style={{ marginTop: 20 }}>
+              <Text style={styles.subtitle}>Video:</Text>
+              <Video
+                source={recetaDelDia.video}
+                useNativeControls
+                resizeMode="contain"
+                style={{ width: "100%", height: 200 }}
+              />
+            </View>
+          )}
+
+          <TouchableOpacity style={styles.botonModal} onPress={reproducirAudio}>
+            <Text style={styles.botonTexto}>Escuchar Audio</Text>
+          </TouchableOpacity>
+          <View style={{ flexDirection: "row", justifyContent: "center", marginTop: 10 }}>
+            <TouchableOpacity onPress={reproducirAudio} style={[styles.botonModal, { marginHorizontal: 5 }]}>
+              <Text style={styles.botonTexto}>▶️ Reproducir / Pausar</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={detenerAudio} style={[styles.botonModal, { marginHorizontal: 5 }]}>
+              <Text style={styles.botonTexto}>⏹️ Detener</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.text}>{recetaDelDia.dia}</Text>
+
+        <TouchableOpacity style={styles.botonModal} onPress={RecargarReceta}>
+          <Text style={styles.botonTexto}>Recargar Receta</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.botonModal} onPress={Descargar}>
+          <Text style={styles.botonTexto}>Descargar Receta</Text>
+        </TouchableOpacity>
+
+        <View style={styles.footer}>
+          <Text style={styles.footerLeft}>Maribel Romero Bautista</Text>
+          <Text style={styles.footerRight}>Aplicaciones Móviles</Text>
         </View>
       </View>
-
-      <Text style={styles.description}>{recetaDelDia.descripcion}</Text>
-
-      {/* Ingredientes */}
-      <Text style={styles.subtitle}>Ingredientes:</Text>
-      {recetaDelDia.ingredientes?.map((ingrediente, index) => (
-        <Text key={index} style={styles.listItem}>• {ingrediente}</Text>
-      ))}
-
-      {/* Preparación */}
-      <Text style={styles.subtitle}>Preparación:</Text>
-      {recetaDelDia.preparacion?.map((paso, index) => (
-        <Text key={index} style={styles.listItem}>{index + 1}. {paso}</Text>
-      ))}
-      </View>
-      <TouchableOpacity style={styles.botonModal} onPress={RecargarReceta}>
-        <Text style={styles.botonTexto}>Recargar Receta</Text>
-      </TouchableOpacity>
-      <TouchableOpacity style={styles.botonModal} onPress={Descargar}>
-        <Text style={styles.botonTexto}>Descargar Receta</Text>
-      </TouchableOpacity>
-
-      <View style={styles.footer}>
-        <Text style={styles.footerLeft}>Maribel Romero Bautista</Text>
-        <Text style={styles.footerRight}>Aplicaciones Móviles</Text>
-      </View>
-    </View>
-  </ScrollView>
-);
-
+    </ScrollView>
+  );
 }
 
 const styles = StyleSheet.create({
