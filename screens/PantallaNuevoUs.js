@@ -2,9 +2,12 @@ import { createUserWithEmailAndPassword } from "firebase/auth";
 import { useState } from "react";
 import { Alert, Image, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useAuth } from "../AuthContext";
 import { auth } from "../config/firebase";
 
 export default function PantallaRegistro({ navigation }) {
+  const { login } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
@@ -16,7 +19,8 @@ export default function PantallaRegistro({ navigation }) {
         Alert.alert("Error", "Por favor, completa todos los campos.");
         return;
       }
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await AsyncStorage.setItem('usuario', JSON.stringify(userCredential.user));
       Alert.alert("Registro exitoso", "¡Usuario creado!");
       login();
     } catch (error) {

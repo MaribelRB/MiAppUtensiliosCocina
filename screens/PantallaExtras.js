@@ -1,5 +1,6 @@
 // screens/PantallaInicio.js
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import React, { useEffect, useState } from "react";
 import { ActivityIndicator, Image, SectionList, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -40,6 +41,18 @@ export default function PantallaInicio() {
     }, 2000);
   };
 
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const obtenerUsuario = async () => {
+      const usuarioGuardado = await AsyncStorage.getItem('usuario');
+      if (usuarioGuardado) {
+        setUsuario(JSON.parse(usuarioGuardado));
+      }
+    };
+    obtenerUsuario();
+  }, []);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       setLoading(false);
@@ -56,8 +69,17 @@ export default function PantallaInicio() {
       );
   }
 
+
+
   return (
       <View style={styles.container}>
+        <View style={{ padding: 10 }}>
+          <Text style={{ fontSize: 16 }}>
+            {usuario
+              ? `¡Hola: ${usuario.email}!`
+              : "No hay usuario guardado"}
+          </Text>
+        </View>
         <TouchableOpacity
           style={styles.menuButton}
           onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}

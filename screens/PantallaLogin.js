@@ -1,9 +1,9 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { useEffect, useRef, useState } from "react";
 import { Alert, Animated, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import { useAuth } from "../AuthContext";
 import { auth } from "../config/firebase";
-
 
 export default function PantallaLogin({ navigation }) {
   const { login } = useAuth();
@@ -12,9 +12,9 @@ export default function PantallaLogin({ navigation }) {
   
   const handleLogin = async () => {
     try {        
-      await signInWithEmailAndPassword(auth, email, password);
+      const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      await AsyncStorage.setItem('usuario', JSON.stringify(userCredential.user));
       Alert.alert("Bienvenido", "¡Login exitoso!");
-      
       login();
       // Navega a la pantalla principal
       //navigation.navigate("Home");

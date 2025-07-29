@@ -1,10 +1,10 @@
 // screens/PantallaInicio.js
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { DrawerActions, useNavigation } from "@react-navigation/native";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
 import BatteryStatus from "../components/BatteryStatus";
-
 
 export default function PantallaInicio() {
   const navigation = useNavigation();
@@ -14,11 +14,30 @@ export default function PantallaInicio() {
     setModalVisible(false);
     setNombre("");
   };
+
+  const [usuario, setUsuario] = useState(null);
+
+  useEffect(() => {
+    const obtenerUsuario = async () => {
+      const usuarioGuardado = await AsyncStorage.getItem('usuario');
+      if (usuarioGuardado) {
+        setUsuario(JSON.parse(usuarioGuardado));
+      }
+    };
+    obtenerUsuario();
+  }, []);
   
  
   return (
     <ScrollView contentContainerStyle={styles.containerpadre}>
-    <View style={styles.container}>
+      <View style={styles.container}>
+        <View style={{ padding: 10 }}>
+          <Text style={{ fontSize: 16 }}>
+            {usuario
+              ? `¡Hola: ${usuario.email}!`
+              : "No hay usuario guardado"}
+          </Text>
+        </View>
       <TouchableOpacity
         style={styles.menuButton}
         onPress={() => navigation.dispatch(DrawerActions.toggleDrawer())}
