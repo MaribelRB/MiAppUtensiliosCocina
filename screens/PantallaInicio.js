@@ -3,6 +3,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { DrawerActions, useNavigation } from "@react-navigation/native";
 import { useState } from "react";
 import { Image, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from "react-native";
+import BatteryStatus from "../components/BatteryStatus";
 
 
 export default function PantallaInicio() {
@@ -24,7 +25,7 @@ export default function PantallaInicio() {
       >
         <Ionicons name="menu" size={32} color="#C8102E" />
       </TouchableOpacity>
-      
+      <BatteryStatus />
       
       <Text style={styles.title}>MasterEnCocina</Text>
       <View style={styles.row}>
