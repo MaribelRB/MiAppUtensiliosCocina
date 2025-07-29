@@ -73,11 +73,9 @@ export default function PantallaInicio() {
 
   return (
       <View style={styles.container}>
-        <View style={{ padding: 10 }}>
+        <View style={{ padding: 10, marginTop: 60 }}>
           <Text style={{ fontSize: 16 }}>
-            {usuario
-              ? `¡Hola: ${usuario.email}!`
-              : "No hay usuario guardado"}
+            {usuario ? `¡Hola: ${usuario.email}!` : "No hay usuario guardado"}
           </Text>
         </View>
         <TouchableOpacity
